@@ -2,9 +2,13 @@
 
 ### Assistente de terminal com IA local — português → Linux, com você no controle
 
+<p align="center">
+  <img src="assets/image.png" alt="Xhat em ação: linguagem natural, confirmação e execução no diretório atual" width="720" />
+</p>
 
-
-**Chat no terminal** · **Modelos locais (Ollama)** · **Confirmação antes de executar** · **~0 RAM em repouso**
+<p align="center">
+  <b>Chat no terminal</b> · <b>Modelos locais (Ollama)</b> · <b>Confirmação antes de executar</b> · <b>~0 RAM em repouso</b>
+</p>
 
 ---
 
