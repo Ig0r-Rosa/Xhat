@@ -53,4 +53,6 @@ def _default_config() -> dict:
     return {
         "model": DEFAULT_MODEL,
         "ollama_host": "http://localhost:11434",
+        # Sobe o Ollama ao usar a IA e para ao sair do Xhat (~0 RAM em repouso).
+        "manage_ollama": True,
     }

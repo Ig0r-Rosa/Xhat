@@ -52,7 +52,7 @@ No print acima: *“lista as disciplinas… deste diretório”* → `ls -1` em 
 | **100% local**              | Modelos via [Ollama](https://ollama.com) — privacidade e uso offline |
 | **Humano no loop**          | Nenhum comando destrutivo sem **Aplicar**                            |
 | **Dois modelos**            | `Qwen 3.5 4B` (leve) e `Qwen 2.5 - Coder 7B` (código/shell)          |
-| **Recurso sob demanda**     | `keep_alive=0` — carrega, responde, descarrega                       |
+| **Recurso sob demanda**     | Ollama sobe ao usar o Xhat e **para ao sair**; modelo com `keep_alive=0` |
 | **Memória em arquivos**     | Contexto em `~/.xhat/*.md`, sem acumular conversa na RAM             |
 | **Dois modos**              | TUI interativa ou single-shot (`--yes` / `--dry-run`) para scripts   |
 | **Consciente do cwd**       | Navega pastas, lista conteúdo e age no diretório atual               |

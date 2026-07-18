@@ -11,6 +11,9 @@ import re
 import requests
 
 
+from . import ollama_runtime
+
+
 class LLMError(Exception):
     """Erro ao falar com o Ollama (offline, modelo ausente, etc.)."""
 
@@ -18,10 +21,17 @@ class LLMError(Exception):
 class OllamaClient:
     """Wrapper mínimo sobre a API de chat do Ollama."""
 
-    def __init__(self, host: str, model_tag: str, timeout: int = 180):
+    def __init__(
+        self,
+        host: str,
+        model_tag: str,
+        timeout: int = 180,
+        manage_ollama: bool = True,
+    ):
         self.host = host.rstrip("/")
         self.model_tag = model_tag
         self.timeout = timeout
+        self.manage_ollama = manage_ollama
 
     def chat_json(self, system: str, user: str) -> dict:
         """Envia uma conversa e retorna a resposta já parseada como JSON.
@@ -37,6 +47,7 @@ class OllamaClient:
 
     def _post_chat(self, system: str, user: str, want_json: bool) -> str:
         """Faz o POST em /api/chat e devolve o conteúdo textual da resposta."""
+        ollama_runtime.ensure_running(self.host, manage=self.manage_ollama)
         payload = self._build_payload(system, user, want_json)
         try:
             resp = requests.post(

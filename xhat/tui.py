@@ -198,7 +198,11 @@ class XhatApp(App):
         """Aplica troca de modelo e atualiza a UI (descarrega o anterior)."""
         self.config = set_model_key(self.config, key)
         spec = get_model(key)
-        self.client = OllamaClient(self.config["ollama_host"], spec.ollama_tag)
+        self.client = OllamaClient(
+            self.config["ollama_host"],
+            spec.ollama_tag,
+            manage_ollama=bool(self.config.get("manage_ollama", True)),
+        )
         self.brain = Brain(self.client)
         self._fill_model_list()
         self._post_system(f"Modelo alterado para [b]{spec.label}[/].")

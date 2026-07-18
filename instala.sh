@@ -139,18 +139,39 @@ instala_ollama_se_preciso() {
     curl -fsSL https://ollama.com/install.sh | sh
   fi
   if ! command -v ollama >/dev/null 2>&1; then
-    warn "Ollama ainda não está no PATH. Abra um terminal novo e rode: ollama serve"
+    warn "Ollama ainda não está no PATH."
     return 0
   fi
-  # Sobe o serviço se possível (não falha a instalação se der erro).
+  # Precisa do daemon só para o pull; depois desligamos no boot.
   if ! curl -sf http://127.0.0.1:11434/api/tags >/dev/null 2>&1; then
-    warn "Iniciando ollama serve em background…"
-    nohup ollama serve >/dev/null 2>&1 &
+    sudo systemctl start ollama 2>/dev/null || true
     sleep 2
   fi
   ollama pull qwen3.5:4b
   ollama pull qwen2.5-coder:7b
   ok "Modelos baixados"
+
+  configura_ollama_sob_demanda
+}
+
+# Não deixa ollama no boot: o Xhat sobe/desce o daemon só quando abre.
+configura_ollama_sob_demanda() {
+  log "Ollama sob demanda (sem RAM em repouso)"
+  if ! command -v systemctl >/dev/null 2>&1; then
+    warn "sem systemctl — pulei"
+    return 0
+  fi
+  local user
+  user="$(id -un)"
+  # sudoers: start/stop sem pedir senha a cada abertura do Xhat
+  "$VENV/bin/python" - <<PY
+from xhat.ollama_runtime import disable_boot_service, install_nopasswd_systemctl
+ok, msg = install_nopasswd_systemctl("$user")
+print(msg)
+ok2, msg2 = disable_boot_service()
+print(msg2)
+PY
+  ok "Daemon não sobe no boot; Xhat liga/desliga ao usar"
 }
 
 abre_xhat() {

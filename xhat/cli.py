@@ -9,6 +9,7 @@ import argparse
 import sys
 
 from . import __version__
+from . import ollama_runtime
 from .config import get_model_key, load_config
 from .llm import OllamaClient
 from .models import MODELS, get_model
@@ -19,11 +20,15 @@ def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     config = load_config()
     client = _make_client(config, args.model)
-
-    # Só o comando sem texto abre a TUI vazia; qualquer pedido vai para single-shot.
-    if args.text:
-        return _run_single(client, args)
-    return _start_tui(client)
+    manage = bool(config.get("manage_ollama", True))
+    try:
+        # Só o comando sem texto abre a TUI vazia; qualquer pedido vai para single-shot.
+        if args.text:
+            return _run_single(client, args)
+        return _start_tui(client)
+    finally:
+        # Ao sair do Xhat, para o daemon Ollama (RAM ~0 em repouso).
+        ollama_runtime.stop_if_managed(manage=manage)
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -61,7 +66,11 @@ def _make_client(config: dict, model_override: str | None) -> OllamaClient:
     """Cria o cliente do modelo com base na config (ou no override da CLI)."""
     key = model_override or get_model_key(config)
     spec = get_model(key)
-    return OllamaClient(host=config["ollama_host"], model_tag=spec.ollama_tag)
+    return OllamaClient(
+        host=config["ollama_host"],
+        model_tag=spec.ollama_tag,
+        manage_ollama=bool(config.get("manage_ollama", True)),
+    )
 
 
 def _run_single(client: OllamaClient, args: argparse.Namespace) -> int:
