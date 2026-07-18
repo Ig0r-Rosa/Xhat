@@ -1,0 +1,5 @@
+# Dependências do Xhat
+# TUI de chat no terminal
+textual>=0.60.0
+# Cliente HTTP para falar com o Ollama (carrega/descarrega modelo sob demanda)
+requests>=2.31.0

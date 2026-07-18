@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xhat"
+version = "0.1.0"
+description = "Assistente TUI local que traduz linguagem natural em comandos Linux e pede permissão antes de executar."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "textual>=0.60.0",
+    "requests>=2.31.0",
+]
+
+# Cria o comando de terminal `Xhat` (e o alias em minúsculo `xhat`).
+[project.scripts]
+Xhat = "xhat.cli:main"
+xhat = "xhat.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["xhat*"]
+
+[tool.setuptools.package-data]
+xhat = ["*.tcss"]

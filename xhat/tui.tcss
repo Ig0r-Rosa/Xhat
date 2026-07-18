@@ -1,0 +1,273 @@
+/* Aparência principal do Xhat — dark, limpa, bolhas de chat */
+
+Screen {
+    background: #0f1419;
+    color: #c8d0d8;
+    layout: vertical;
+    width: 100%;
+    height: 100%;
+}
+
+/* ---- Layout raiz ---- */
+#body {
+    width: 1fr;
+    height: 1fr;
+    layout: horizontal;
+}
+
+#sidebar {
+    width: 36;
+    min-width: 32;
+    max-width: 44;
+    height: 1fr;
+    background: #121820;
+    border-right: solid #2a3441;
+    padding: 1 1 1 1;
+    /* Grid: modelo só no topo, histórico come o resto até embaixo */
+    layout: grid;
+    grid-size: 1 2;
+    grid-rows: auto 1fr;
+    grid-gutter: 1;
+}
+
+#main {
+    width: 1fr;
+    height: 1fr;
+    layout: vertical;
+    padding: 1 1 1 1;
+    background: #0f1419;
+}
+
+/* ---- Painéis da sidebar ---- */
+.side-panel {
+    border: round #3a4654;
+    background: #151c26;
+    padding: 0 1 1 1;
+    layout: vertical;
+    width: 1fr;
+}
+
+/* Modelo: só a lista (os 2 modelos visíveis) */
+#model-panel {
+    height: auto;
+    margin-bottom: 0;
+    padding: 1 1 1 1;
+}
+
+/* Histórico: célula 1fr do grid = até o rodapé da tela */
+#history-panel {
+    height: 1fr;
+    min-height: 1fr;
+    margin-bottom: 0;
+}
+
+.side-panel .panel-title {
+    color: #8b9aab;
+    text-style: bold;
+    padding: 0 0 1 0;
+    height: 1;
+}
+
+#model-list {
+    height: 4;
+    min-height: 4;
+    border: none;
+    background: transparent;
+    padding: 0;
+}
+
+#model-list > .option-list--option {
+    padding: 0 1;
+    color: #9aa8b6;
+}
+
+#model-list > .option-list--option-highlighted {
+    background: #1e3a4f;
+    color: #7dd3fc;
+}
+
+#model-list > .option-list--option-hover {
+    background: #1a2836;
+}
+
+#history-list {
+    width: 1fr;
+    height: 1fr;
+    min-height: 1fr;
+    border: none;
+    background: transparent;
+    scrollbar-background: #151c26;
+    scrollbar-color: #2a3441;
+    scrollbar-color-hover: #3a4654;
+}
+
+#history-list > .option-list--option {
+    color: #9aa8b6;
+    padding: 0 1;
+    height: auto;
+}
+
+#history-list > .option-list--option-highlighted {
+    background: #1e3a4f;
+    color: #a5f3fc;
+}
+
+#history-list > .option-list--option-hover {
+    background: #1a2836;
+}
+
+/* ---- Chat (ocupa todo o espaço restante) ---- */
+#chat {
+    height: 1fr;
+    border: round #2a3441;
+    background: #0c1016;
+    padding: 1 1;
+    scrollbar-background: #0c1016;
+    scrollbar-color: #2a3441;
+    scrollbar-color-hover: #3a4654;
+}
+
+.bubble {
+    height: auto;
+    margin: 1 0;
+    padding: 0 1 1 1;
+    width: 1fr;
+}
+
+.bubble-user {
+    border: round #38bdf8;
+    background: #0e2433;
+    color: #e0f2fe;
+    margin: 1 1 1 14;
+    padding: 1 1;
+}
+
+.bubble-user .bubble-label {
+    color: #7dd3fc;
+    text-style: bold;
+}
+
+.bubble-ai {
+    border: round #4ade80;
+    background: #0f2418;
+    color: #dcfce7;
+    margin: 1 14 1 1;
+}
+
+.bubble-ai .bubble-label {
+    color: #86efac;
+    text-style: bold;
+}
+
+.bubble-system {
+    border: round #3a4654;
+    background: #151b24;
+    color: #8b9aab;
+    margin: 1 8;
+}
+
+.bubble-thinking {
+    border: round #3a4654;
+    background: #151b24;
+    color: #6b7785;
+    text-style: italic;
+    margin: 1 14 1 1;
+}
+
+.bubble-command {
+    border: round #fbbf24;
+    background: #241c0a;
+    color: #fef3c7;
+    margin: 1 8 1 1;
+}
+
+.bubble-danger {
+    border: round #f87171;
+    background: #2a1212;
+    color: #fecaca;
+}
+
+.bubble-body {
+    height: auto;
+    padding-top: 0;
+}
+
+/* ---- Barra de confirmação ---- */
+#confirm {
+    display: none;
+    height: auto;
+    padding: 0;
+    margin: 0;
+    align: right middle;
+    width: 1fr;
+}
+
+#confirm.visible {
+    display: block;
+    padding-bottom: 1;
+}
+
+#confirm-spacer {
+    width: 1fr;
+    height: 1;
+}
+
+#confirm Button {
+    margin-left: 1;
+    min-width: 12;
+}
+
+/* ---- Input: cwd + ? e campo alinhados ---- */
+#cwd-label {
+    height: 1;
+    color: #6b7785;
+    padding: 0 1;
+    margin-top: 1;
+}
+
+#prompt-row {
+    height: 3;
+    margin: 0;
+    padding: 0;
+    layout: horizontal;
+    align: left middle;
+    background: #0f1419;
+}
+
+.subtle-btn {
+    width: 5;
+    min-width: 5;
+    max-width: 5;
+    height: 3;
+    background: #151b24;
+    color: #6b7785;
+    border: round #2a3441;
+    text-style: none;
+    margin: 0 1 0 0;
+    content-align: center middle;
+}
+
+.subtle-btn:hover {
+    background: #1a2836;
+    color: #a5f3fc;
+    border: round #3a4654;
+}
+
+.subtle-btn:focus {
+    background: #1a2836;
+    color: #7dd3fc;
+    border: round #38bdf8;
+}
+
+#prompt {
+    width: 1fr;
+    height: 3;
+    border: round #3a4654;
+    background: #151b24;
+    padding: 0 1;
+    margin: 0;
+}
+
+#prompt:focus {
+    border: round #38bdf8;
+}

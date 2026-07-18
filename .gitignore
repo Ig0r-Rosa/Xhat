@@ -1,0 +1,22 @@
+# Dados locais do Xhat (contexto, perfil, config) — nunca versionar
+.xhat/
+~/.xhat/
+
+# Alocação de horas (uso interno)
+.alocacao-horas.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# Editores / SO
+.vscode/
+.idea/
+.DS_Store
