@@ -21,7 +21,7 @@ from textual.worker import Worker
 
 from .brain import Brain, Reply
 from .config import get_model_key, load_config, set_model_key
-from .executor import is_dangerous, run_captured
+from .executor import is_dangerous, needs_sudo, run_captured
 from .llm import LLMError, OllamaClient
 from .memory import Memory
 from .models import MODELS, get_model, list_models
@@ -44,6 +44,8 @@ class XhatApp(App):
         self.pending_command: str | None = None
         self._thinking: ChatBubble | None = None
         self.cwd = default_cwd()
+        # True enquanto o input está no modo senha do sudo.
+        self._awaiting_sudo = False
 
     # ------------------------------------------------------------------ layout
     def compose(self) -> ComposeResult:
@@ -118,9 +120,15 @@ class XhatApp(App):
 
     # --------------------------------------------------------------- eventos UI
     def on_input_submitted(self, event: Input.Submitted) -> None:
-        """Envia a mensagem do campo de entrada."""
+        """Envia a mensagem — ou a senha do sudo, se estiver pedindo."""
+        prompt = self.query_one("#prompt", Input)
+        if self._awaiting_sudo:
+            password = event.value
+            prompt.value = ""
+            self._on_sudo_password(password)
+            return
         text = event.value.strip()
-        self.query_one("#prompt", Input).value = ""
+        prompt.value = ""
         if text:
             self._submit(text)
 
@@ -272,10 +280,54 @@ class XhatApp(App):
             return
         if self._try_change_directory(command):
             return
+        # sudo sem TTY: pede senha no chat (mascarada), não no texto da IA.
+        if needs_sudo(command):
+            self._ask_sudo_password()
+            return
         self._post_system(f"$ {command}")
         self.run_worker(
             lambda: self._execute(command), thread=True, group="exec"
         )
+
+    def _ask_sudo_password(self) -> None:
+        """Coloca o input em modo senha e orienta o usuário."""
+        self._awaiting_sudo = True
+        self._post_system(
+            "Este comando usa [b]sudo[/]. Digite a senha abaixo "
+            "(fica oculta e [b]não[/] é salva no histórico)."
+        )
+        prompt = self.query_one("#prompt", Input)
+        prompt.password = True
+        prompt.placeholder = "Senha do sudo… (Enter confirma, vazio cancela)"
+        prompt.value = ""
+        prompt.focus()
+
+    def _on_sudo_password(self, password: str) -> None:
+        """Recebe a senha do input, autentica e executa o comando pendente."""
+        self._awaiting_sudo = False
+        self._restore_prompt_normal()
+        command = self.pending_command
+        if not command:
+            return
+        if not password:
+            self._post_system("Cancelado (sem senha).")
+            self.pending_command = None
+            return
+        # Não publica a senha no chat — só um marcador.
+        self._post_system("Senha recebida. Autenticando sudo…")
+        self._post_system(f"$ {command}")
+        self.run_worker(
+            lambda: self._execute(command, sudo_password=password),
+            thread=True,
+            group="exec",
+        )
+
+    def _restore_prompt_normal(self) -> None:
+        """Volta o campo de mensagem ao modo texto normal."""
+        prompt = self.query_one("#prompt", Input)
+        prompt.password = False
+        prompt.placeholder = "Digite sua mensagem..."
+        prompt.value = ""
 
     def _try_change_directory(self, command: str) -> bool:
         """Se for `cd`, atualiza o diretório da sessão e a barra."""
@@ -292,9 +344,14 @@ class XhatApp(App):
             return True
         return False
 
-    def _execute(self, command: str) -> None:
+    def _execute(
+        self, command: str, sudo_password: str | None = None
+    ) -> None:
         """(Thread) Roda o comando no cwd atual e devolve a saída."""
-        code, output = run_captured(command, cwd=str(self.cwd))
+        code, output = run_captured(
+            command, cwd=str(self.cwd), sudo_password=sudo_password
+        )
+        sudo_password = None
         self.call_from_thread(self._show_output, code, output)
 
     def _show_output(self, code: int, output: str) -> None:
@@ -305,13 +362,19 @@ class XhatApp(App):
 
     def _edit(self) -> None:
         """Coloca o comando no input com prefixo !."""
+        if self._awaiting_sudo:
+            self._awaiting_sudo = False
+            self._restore_prompt_normal()
         self._toggle_confirm(False)
         prompt = self.query_one("#prompt", Input)
         prompt.value = f"!{self.pending_command or ''}"
         prompt.focus()
 
     def _cancel(self) -> None:
-        """Cancela o comando pendente."""
+        """Cancela o comando pendente (ou o pedido de senha)."""
+        if self._awaiting_sudo:
+            self._awaiting_sudo = False
+            self._restore_prompt_normal()
         self._toggle_confirm(False)
         self.pending_command = None
         self._post_system("Cancelado.")
@@ -329,7 +392,9 @@ class XhatApp(App):
             "• [b]/ajuda[/] — esta ajuda\n"
             "• [b]/reset[/] — limpa a tela do chat\n"
             "• [b]/sair[/] — fecha o Xhat\n"
-            "• Prefixe com [b]![/] para comando shell manual"
+            "• Prefixe com [b]![/] para comando shell manual\n"
+            "• Comandos com [b]sudo[/]: a senha é pedida no campo "
+            "(oculta, sem gravar no histórico)"
         )
 
     def _cmd_reset(self) -> None:
