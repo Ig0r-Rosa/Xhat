@@ -77,26 +77,27 @@ Arquitetura em módulos pequenos (`brain`, `llm`, `memory`, `executor`, `tui`…
 
 ## Instalação rápida
 
-**Requisitos:** Linux, Python 3.10+, [Ollama](https://ollama.com)
+**Num PC zerado**, o script cuida do essencial:
 
 ```bash
-# Modelos locais (uma vez)
-curl -fsSL https://ollama.com/install.sh | sh
-ollama pull qwen3.5:4b
-ollama pull qwen2.5-coder:7b
-
-# Instala Xhat no PATH e abre a TUI
 chmod +x instala.sh
 ./instala.sh
 ```
 
+| O que ele faz | Detalhe |
+|---------------|---------|
+| Python + deps | Ambiente em `~/.local/share/xhat/` (você **não** ativa venv) |
+| Comando | `Xhat` em `~/.local/bin` (PATH automático) |
+| Ollama + modelos | Instala e faz `pull` (use `--sem-ollama` para pular) |
+| Abre a TUI | No final (use `--sem-abrir` para só instalar) |
+
 | Flag | Efeito |
 |------|--------|
-| `./instala.sh` | Instala + coloca `Xhat` no PATH + abre |
+| `./instala.sh` | Instala tudo + Ollama/modelos + abre |
 | `./instala.sh --sem-abrir` | Só instala |
-| `./instala.sh --com-ollama` | Também faz `ollama pull` dos modelos |
+| `./instala.sh --sem-ollama` | Não instala/puxa Ollama |
 
-Depois: digite `Xhat` em qualquer terminal.
+Depois, em qualquer terminal: **`Xhat`**.
 
 ---
 
